@@ -163,8 +163,15 @@ async def main() -> None:
     ensure_tables()
 
     empresas = get_all_empresas()
+
+    cnpjs_env = os.environ.get("BOT_ISS_CNPJS", "").strip()
+    if cnpjs_env:
+        allowed = {c.strip() for c in cnpjs_env.split(",") if c.strip()}
+        empresas = [e for e in empresas if e.get("cnpj") in allowed]
+        logger.info("Filtrando por CNPJs selecionados: %s", sorted(allowed))
+
     if not empresas:
-        logger.warning("Nenhuma empresa em bot_empresas. Insira registros e execute novamente.")
+        logger.warning("Nenhuma empresa na fila para processar.")
         return
 
     logger.info("Fila: %d empresa(s)", len(empresas))

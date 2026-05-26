@@ -88,6 +88,7 @@ def get_all_empresas() -> list[dict]:
             continue
         empresas.append({
             "id": None,
+            "cnpj": (cliente.get("cnpj") or "").strip(),
             "login": login,
             "senha": senha,
             "municipio": _norm_municipio(municipio),
