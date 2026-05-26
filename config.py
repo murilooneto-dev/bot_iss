@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_PATH = os.getenv("DB_PATH", "bot_iss.db")
+FISCAL_DB_PATH = os.getenv(
+    "FISCAL_DB_PATH",
+    r"C:\Users\Client\Documents\Sistemas\sistemafiscal\Fiscal\fiscal-system\data\fiscal-system.sqlite",
+)
 DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloads")
 
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

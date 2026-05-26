@@ -52,6 +52,7 @@ async def process_empresa(empresa: dict) -> None:
     senha = empresa["senha"]
     municipio = empresa["municipio"]
     email_destino = empresa["email_destino"]
+    razao_social = empresa.get("razao_social") or login_str
 
     company_dir = os.path.join(DOWNLOAD_DIR, f"{municipio}_{login_str}")
     os.makedirs(company_dir, exist_ok=True)
@@ -66,7 +67,7 @@ async def process_empresa(empresa: dict) -> None:
 
         mes = session.mes_atual
         ano = session.ano_atual
-        logger.info("[%s@%s] Competência: %02d/%d", login_str, municipio, mes, ano)
+        logger.info("[%s | %s@%s] Competência: %02d/%d", razao_social, login_str, municipio, mes, ano)
 
         # ── Notas Fiscais ─────────────────────────────────────────────
         notas = await session.get_notas_mes_atual()
@@ -119,10 +120,10 @@ async def process_empresa(empresa: dict) -> None:
 
         # ── Envio de E-mail ────────────────────────────────────────────
         if files_downloaded:
-            subject = f"ISS {municipio.upper()} — {login_str} — {mes:02d}/{ano}"
+            subject = f"ISS {municipio.upper()} — {razao_social} — {mes:02d}/{ano}"
             body = (
                 f"Documentos ISS de {mes:02d}/{ano}\n"
-                f"Empresa: {login_str} | Município: {municipio}\n"
+                f"Empresa: {razao_social} ({login_str}) | Município: {municipio}\n"
                 f"Total NFS-e emitidas: R$ {total_notas:.2f}\n\n"
                 f"Arquivos em anexo ({len(files_downloaded)}):\n"
                 + "\n".join(f"  - {os.path.basename(p)}" for p in files_downloaded)
@@ -142,7 +143,7 @@ async def process_empresa(empresa: dict) -> None:
         )
 
     except Exception as exc:
-        logger.error("[%s@%s] ERRO: %s", login_str, municipio, exc, exc_info=True)
+        logger.error("[%s | %s@%s] ERRO: %s", razao_social, login_str, municipio, exc, exc_info=True)
         log_result(
             empresa_id=empresa_id,
             municipio=municipio,
@@ -169,7 +170,7 @@ async def main() -> None:
     logger.info("Fila: %d empresa(s)", len(empresas))
 
     for empresa in empresas:
-        logger.info("--- Iniciando: %s @ %s ---", empresa["login"], empresa["municipio"])
+        logger.info("--- Iniciando: %s (%s @ %s) ---", empresa.get("razao_social") or empresa["login"], empresa["login"], empresa["municipio"])
         await process_empresa(empresa)
 
     logger.info("=== Bot ISS concluído ===")

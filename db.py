@@ -1,10 +1,22 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
 import sqlite3
+import unicodedata
 from datetime import datetime
 
-from config import DB_PATH
+from config import DB_PATH, FISCAL_DB_PATH
+
+_log = logging.getLogger(__name__)
+
+
+def _norm_municipio(value: str) -> str:
+    """'Juazeiro do Norte' → 'juazeirodonorte'"""
+    nfd = unicodedata.normalize("NFD", value)
+    ascii_only = nfd.encode("ascii", "ignore").decode("ascii")
+    return ascii_only.lower().replace(" ", "")
 
 
 def _conn():
@@ -41,9 +53,49 @@ def ensure_tables() -> None:
 
 
 def get_all_empresas() -> list[dict]:
-    with _conn() as c:
-        c.row_factory = sqlite3.Row
-        return [dict(r) for r in c.execute("SELECT * FROM bot_empresas").fetchall()]
+    if not os.path.exists(FISCAL_DB_PATH):
+        _log.error("Banco fiscal não encontrado: %s", FISCAL_DB_PATH)
+        return []
+
+    try:
+        with sqlite3.connect(FISCAL_DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute("SELECT payload FROM app_data LIMIT 1").fetchone()
+    except Exception as exc:
+        _log.error("Erro ao conectar ao banco fiscal: %s", exc)
+        return []
+
+    if not row:
+        _log.warning("app_data vazio no banco fiscal")
+        return []
+
+    try:
+        payload = json.loads(row["payload"])
+    except Exception as exc:
+        _log.error("Erro ao decodificar payload do banco fiscal: %s", exc)
+        return []
+
+    empresas: list[dict] = []
+    for cliente in payload.get("clientesData", []):
+        if not cliente.get("enviaIss"):
+            continue
+        login = (cliente.get("loginIss") or "").strip()
+        senha = (cliente.get("senhaIss") or "").strip()
+        municipio = (cliente.get("municipio") or "").strip()
+        email = (cliente.get("emailEnvioIss") or "").strip()
+        if not login or not senha or not municipio:
+            _log.warning("Cliente sem dados ISS completos, ignorando: %s", cliente.get("nome", "?"))
+            continue
+        empresas.append({
+            "id": None,
+            "login": login,
+            "senha": senha,
+            "municipio": _norm_municipio(municipio),
+            "email_destino": email,
+            "razao_social": (cliente.get("nome") or "").strip(),
+        })
+
+    return empresas
 
 
 def update_empresa_total(empresa_id: int, total_notas: float) -> None:
