@@ -1,0 +1,527 @@
+2026-05-25 17:07:33,390 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-25 17:07:33,440 WARNING bot_iss — Nenhuma empresa em bot_empresas. Insira registros e execute novamente.
+2026-05-25 17:08:17,954 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-25 17:08:17,956 WARNING bot_iss — Nenhuma empresa em bot_empresas. Insira registros e execute novamente.
+2026-05-25 17:08:54,884 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-25 17:08:54,885 WARNING bot_iss — Nenhuma empresa em bot_empresas. Insira registros e execute novamente.
+2026-05-26 08:32:41,787 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-26 08:32:41,821 WARNING bot_iss — Nenhuma empresa em bot_empresas. Insira registros e execute novamente.
+2026-05-26 08:34:10,432 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-26 08:34:10,434 WARNING bot_iss — Nenhuma empresa em bot_empresas. Insira registros e execute novamente.
+2026-05-26 09:40:33,371 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-26 09:40:33,382 INFO bot_iss — Fila: 95 empresa(s)
+2026-05-26 09:40:33,382 INFO bot_iss — --- Iniciando: 53923209000193 @ JUAZEIRO DO NORTE ---
+2026-05-26 09:40:37,524 INFO iss_session — Login: 53923209000193 @ JUAZEIRO DO NORTE
+2026-05-26 09:40:45,957 ERROR bot_iss — [53923209000193@JUAZEIRO DO NORTE] ERRO: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 89, in login
+    await self.page.check('input[name="tipo"][value="empresa"]')
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 12204, in check
+    await self._impl_obj.check(
+    ...<7 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 1112, in check
+    return await self._main_frame.check(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 879, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+
+2026-05-26 09:40:46,243 INFO bot_iss — --- Iniciando: 5754763000141 @ JUAZEIRO DO NORTE ---
+2026-05-26 09:40:47,149 INFO iss_session — Login: 5754763000141 @ JUAZEIRO DO NORTE
+2026-05-26 09:40:48,462 ERROR bot_iss — [5754763000141@JUAZEIRO DO NORTE] ERRO: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 89, in login
+    await self.page.check('input[name="tipo"][value="empresa"]')
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 12204, in check
+    await self._impl_obj.check(
+    ...<7 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 1112, in check
+    return await self._main_frame.check(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 879, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+
+2026-05-26 09:40:48,793 INFO bot_iss — --- Iniciando: 7387700000120 @ JUAZEIRO DO NORTE ---
+2026-05-26 09:42:13,867 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-26 09:42:13,870 INFO bot_iss — Fila: 95 empresa(s)
+2026-05-26 09:42:13,871 INFO bot_iss — --- Iniciando: 53923209000193 @ juazeiro do norte ---
+2026-05-26 09:42:16,090 INFO iss_session — Login: 53923209000193 @ juazeiro do norte
+2026-05-26 09:42:26,090 ERROR bot_iss — [53923209000193@juazeiro do norte] ERRO: Target page, context or browser has been closed
+=========================== logs ===========================
+"domcontentloaded" event fired
+"load" event fired
+============================================================
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 93, in login
+    await self.page.wait_for_load_state("networkidle")
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 9712, in wait_for_load_state
+    await self._impl_obj.wait_for_load_state(
+        state=state, timeout=to_milliseconds(timeout)
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 577, in wait_for_load_state
+    return await self._main_frame.wait_for_load_state(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 276, in wait_for_load_state
+    return await self._wait_for_load_state_impl(state, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 304, in _wait_for_load_state_impl
+    await waiter.result()
+playwright._impl._errors.Error: Target page, context or browser has been closed
+=========================== logs ===========================
+"domcontentloaded" event fired
+"load" event fired
+============================================================
+2026-05-26 09:42:26,378 INFO bot_iss — --- Iniciando: 5754763000141 @ JUAZEIRO DO NORTE ---
+2026-05-26 09:42:27,539 ERROR bot_iss — [5754763000141@JUAZEIRO DO NORTE] ERRO: Browser.new_context: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Client\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=C:\Users\Client\AppData\Local\Temp\playwright_chromiumdev_profile-UulFaz --remote-debugging-pipe --no-startup-window
+<launched> pid=12556
+[pid=12556] <gracefully close start>
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 52, in process_empresa
+    await session.start()
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 65, in start
+    self._context = await self._browser.new_context(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 15738, in new_context
+    await self._impl_obj.new_context(
+    ...<36 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_browser.py", line 174, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Browser.new_context: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Client\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=C:\Users\Client\AppData\Local\Temp\playwright_chromiumdev_profile-UulFaz --remote-debugging-pipe --no-startup-window
+<launched> pid=12556
+[pid=12556] <gracefully close start>
+2026-05-26 09:42:27,581 INFO bot_iss — --- Iniciando: 7387700000120 @ JUAZEIRO DO NORTE ---
+2026-05-26 09:42:28,603 INFO iss_session — Login: 7387700000120 @ JUAZEIRO DO NORTE
+2026-05-26 09:42:29,750 ERROR bot_iss — [7387700000120@JUAZEIRO DO NORTE] ERRO: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 89, in login
+    await self.page.check('input[name="tipo"][value="empresa"]')
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 12204, in check
+    await self._impl_obj.check(
+    ...<7 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 1112, in check
+    return await self._main_frame.check(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 879, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+
+2026-05-26 09:42:30,038 INFO bot_iss — --- Iniciando: 28917133000146 @ JUAZEIRO DO NORTE ---
+2026-05-26 09:42:32,162 INFO iss_session — Login: 28917133000146 @ JUAZEIRO DO NORTE
+2026-05-26 09:46:28,297 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-26 09:46:28,299 INFO bot_iss — Fila: 96 empresa(s)
+2026-05-26 09:46:28,299 INFO bot_iss — --- Iniciando: 53923209000193 @ juazeiro do norte ---
+2026-05-26 09:46:30,589 INFO iss_session — Login: 53923209000193 @ juazeiro do norte
+2026-05-26 09:46:34,368 ERROR bot_iss — [53923209000193@juazeiro do norte] ERRO: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 89, in login
+    await self.page.check('input[name="tipo"][value="empresa"]')
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 12204, in check
+    await self._impl_obj.check(
+    ...<7 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 1112, in check
+    return await self._main_frame.check(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 879, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+
+2026-05-26 09:46:34,632 INFO bot_iss — --- Iniciando: 53923209000193 @ juazeirodonorte ---
+2026-05-26 09:46:36,055 INFO iss_session — Login: 53923209000193 @ juazeirodonorte
+2026-05-26 09:46:39,401 INFO iss_session — Login OK
+2026-05-26 09:46:39,401 INFO bot_iss — [53923209000193@juazeirodonorte] Competência: 04/2026
+2026-05-26 09:46:40,278 INFO bot_iss — [53923209000193] NFS-e: 0 nota(s) | Total: R$ 0.00
+2026-05-26 09:46:49,105 INFO bot_iss — [53923209000193] Escrituração não encontrada — criando...
+2026-05-26 09:46:52,410 ERROR bot_iss — [53923209000193@juazeirodonorte] ERRO: Escrituração não encontrada na lista após criação. Verifique manualmente o sistema.
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 74, in process_empresa
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: Escrituração não encontrada na lista após criação. Verifique manualmente o sistema.
+2026-05-26 09:46:53,538 INFO bot_iss — --- Iniciando: 5754763000141 @ juazeirodonorte ---
+2026-05-26 09:46:54,890 INFO iss_session — Login: 5754763000141 @ juazeirodonorte
+2026-05-26 09:46:57,735 ERROR bot_iss — [5754763000141@juazeirodonorte] ERRO: Login falhou para 5754763000141 em juazeirodonorte
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 96, in login
+    raise RuntimeError(f"Login falhou para {login_str} em {self.municipio}")
+RuntimeError: Login falhou para 5754763000141 em juazeirodonorte
+2026-05-26 09:46:58,738 INFO bot_iss — --- Iniciando: 7387700000120 @ juazeirodonorte ---
+2026-05-26 09:47:00,697 INFO iss_session — Login: 7387700000120 @ juazeirodonorte
+2026-05-26 09:47:03,655 ERROR bot_iss — [7387700000120@juazeirodonorte] ERRO: Login falhou para 7387700000120 em juazeirodonorte
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 96, in login
+    raise RuntimeError(f"Login falhou para {login_str} em {self.municipio}")
+RuntimeError: Login falhou para 7387700000120 em juazeirodonorte
+2026-05-26 09:47:10,073 INFO bot_iss — --- Iniciando: 28917133000146 @ juazeirodonorte ---
+2026-05-26 09:47:11,240 INFO iss_session — Login: 28917133000146 @ juazeirodonorte
+2026-05-26 09:47:16,472 INFO iss_session — Login OK
+2026-05-26 09:47:16,479 INFO bot_iss — [28917133000146@juazeirodonorte] Competência: 04/2026
+2026-05-26 09:47:18,018 INFO bot_iss — [28917133000146] NFS-e: 0 nota(s) | Total: R$ 0.00
+2026-05-26 09:47:28,169 INFO bot_iss — [28917133000146] Escrituração não encontrada — criando...
+2026-05-26 09:47:32,143 ERROR bot_iss — [28917133000146@juazeirodonorte] ERRO: Escrituração não encontrada na lista após criação. Verifique manualmente o sistema.
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 74, in process_empresa
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: Escrituração não encontrada na lista após criação. Verifique manualmente o sistema.
+2026-05-26 09:47:34,018 INFO bot_iss — --- Iniciando: 40620996000152 @ juazeirodonorte ---
+2026-05-26 09:47:35,953 INFO iss_session — Login: 40620996000152 @ juazeirodonorte
+2026-05-26 09:47:37,315 ERROR bot_iss — [40620996000152@juazeirodonorte] ERRO: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 86, in login
+    await self.page.goto(f"{self.base_url}/login")
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 9611, in goto
+    await self._impl_obj.goto(
+    ...<4 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 557, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+
+2026-05-26 09:47:37,625 INFO bot_iss — --- Iniciando: 40403869000100 @ juazeirodonorte ---
+2026-05-26 09:47:39,279 INFO iss_session — Login: 40403869000100 @ juazeirodonorte
+2026-05-26 09:47:39,971 ERROR bot_iss — [40403869000100@juazeirodonorte] ERRO: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 86, in login
+    await self.page.goto(f"{self.base_url}/login")
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 9611, in goto
+    await self._impl_obj.goto(
+    ...<4 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 557, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+
+2026-05-26 09:47:40,009 INFO bot_iss — --- Iniciando: 49787578000200 @ juazeirodonorte ---
+2026-05-26 09:47:42,125 INFO iss_session — Login: 49787578000200 @ juazeirodonorte
+2026-05-26 09:47:43,788 ERROR bot_iss — [49787578000200@juazeirodonorte] ERRO: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 53, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 86, in login
+    await self.page.goto(f"{self.base_url}/login")
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 9611, in goto
+    await self._impl_obj.goto(
+    ...<4 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 557, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+
+2026-05-26 09:47:44,250 INFO bot_iss — --- Iniciando: 47053879000101 @ juazeirodonorte ---
+2026-05-26 10:09:53,818 INFO bot_iss — === Bot ISS iniciado ===
+2026-05-26 10:09:53,821 INFO bot_iss — Fila: 96 empresa(s)
+2026-05-26 10:09:53,821 INFO bot_iss — --- Iniciando: 53923209000193 @ juazeiro do norte ---
+2026-05-26 10:09:55,201 INFO iss_session — Login: 53923209000193 @ juazeiro do norte
+2026-05-26 10:10:10,586 ERROR bot_iss — [53923209000193@juazeiro do norte] ERRO: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 65, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 97, in login
+    await self.page.check('input[name="tipo"][value="empresa"]')
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 12204, in check
+    await self._impl_obj.check(
+    ...<7 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 1112, in check
+    return await self._main_frame.check(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 879, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.check: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("input[name=\"tipo\"][value=\"empresa\"]")
+
+2026-05-26 10:10:10,822 INFO bot_iss — --- Iniciando: 53923209000193 @ juazeirodonorte ---
+2026-05-26 10:10:12,017 INFO iss_session — Login: 53923209000193 @ juazeirodonorte
+2026-05-26 10:10:17,061 INFO iss_session — Login OK
+2026-05-26 10:10:17,062 INFO bot_iss — [53923209000193@juazeirodonorte] Competência: 04/2026
+2026-05-26 10:10:18,970 INFO bot_iss — [53923209000193] NFS-e: 0 nota(s) | Total: R$ 0.00
+2026-05-26 10:10:20,344 ERROR bot_iss — [53923209000193@juazeirodonorte] ERRO: Page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/modulo1/escrituracoes?q[notaano_eq]=2026&commit=Filtrar", waiting until "load"
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 80, in process_empresa
+    escrit = await session.check_escrituracao_mes_atual()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 220, in check_escrituracao_mes_atual
+    await self.page.goto(url)
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 9611, in goto
+    await self._impl_obj.goto(
+    ...<4 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 557, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/modulo1/escrituracoes?q[notaano_eq]=2026&commit=Filtrar", waiting until "load"
+
+2026-05-26 10:10:20,827 INFO bot_iss — --- Iniciando: 5754763000141 @ juazeirodonorte ---
+2026-05-26 10:10:22,702 ERROR bot_iss — [5754763000141@juazeirodonorte] ERRO: BrowserType.launch: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Client\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=C:\Users\Client\AppData\Local\Temp\playwright_chromiumdev_profile-HtiCeb --remote-debugging-pipe --no-startup-window
+<launched> pid=18508
+[pid=18508] <gracefully close start>
+Call log:
+  - <launching> C:\Users\Client\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=C:\Users\Client\AppData\Local\Temp\playwright_chromiumdev_profile-HtiCeb --remote-debugging-pipe --no-startup-window
+  - <launched> pid=18508
+  - [pid=18508] <gracefully close start>
+  - [pid=18508] <forcefully close>
+  - [pid=18508] <kill>
+  - [pid=18508] <will force kill>
+  - [pid=18508] taskkill stdout: �XITO: o processo com PID 8864 (processo filho de PID 13508) foi finalizado.
+�XITO: o processo com PID 13508 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 2252 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 14848 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 7804 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 18508 (processo filho de PID 15168) foi finalizado.
+  - [pid=18508] <process did exit: exitCode=1, signal=null>
+  - [pid=18508] starting temporary directories cleanup
+  - [pid=18508] finished temporary directories cleanup
+  - [pid=18508] <gracefully close end>
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 64, in process_empresa
+    await session.start()
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 72, in start
+    self._browser = await self._playwright.chromium.launch(headless=self.headless)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 16307, in launch
+    await self._impl_obj.launch(
+    ...<17 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_browser_type.py", line 98, in launch
+    await self._channel.send(
+        "launch", TimeoutSettings.launch_timeout, params
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: BrowserType.launch: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Client\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=C:\Users\Client\AppData\Local\Temp\playwright_chromiumdev_profile-HtiCeb --remote-debugging-pipe --no-startup-window
+<launched> pid=18508
+[pid=18508] <gracefully close start>
+Call log:
+  - <launching> C:\Users\Client\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=C:\Users\Client\AppData\Local\Temp\playwright_chromiumdev_profile-HtiCeb --remote-debugging-pipe --no-startup-window
+  - <launched> pid=18508
+  - [pid=18508] <gracefully close start>
+  - [pid=18508] <forcefully close>
+  - [pid=18508] <kill>
+  - [pid=18508] <will force kill>
+  - [pid=18508] taskkill stdout: �XITO: o processo com PID 8864 (processo filho de PID 13508) foi finalizado.
+�XITO: o processo com PID 13508 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 2252 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 14848 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 7804 (processo filho de PID 18508) foi finalizado.
+�XITO: o processo com PID 18508 (processo filho de PID 15168) foi finalizado.
+  - [pid=18508] <process did exit: exitCode=1, signal=null>
+  - [pid=18508] starting temporary directories cleanup
+  - [pid=18508] finished temporary directories cleanup
+  - [pid=18508] <gracefully close end>
+
+2026-05-26 10:10:22,720 INFO bot_iss — --- Iniciando: 7387700000120 @ juazeirodonorte ---
+2026-05-26 10:10:24,182 INFO iss_session — Login: 7387700000120 @ juazeirodonorte
+2026-05-26 10:10:25,285 ERROR bot_iss — [7387700000120@juazeirodonorte] ERRO: Page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+Traceback (most recent call last):
+  File "C:\Users\Client\Documents\Bot Novo\bot_iss.py", line 65, in process_empresa
+    await session.login(login_str, senha)
+  File "C:\Users\Client\Documents\Bot Novo\iss_session.py", line 94, in login
+    await self.page.goto(f"{self.base_url}/login")
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\async_api\_generated.py", line 9611, in goto
+    await self._impl_obj.goto(
+    ...<4 lines>...
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_page.py", line 557, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Client\AppData\Local\Programs\Python\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+  - navigating to "https://iss.speedgov.com.br/juazeirodonorte/login", waiting until "load"
+
+2026-05-26 10:10:25,541 INFO bot_iss — --- Iniciando: 28917133000146 @ juazeirodonorte ---
