@@ -17,3 +17,6 @@ SMTP_PASS = os.getenv("SMTP_PASS", "")
 EMAIL_FROM = os.getenv("EMAIL_FROM", SMTP_USER)
 
 HEADLESS = os.getenv("HEADLESS", "true").lower() == "true"
+
+# URL do Sistema Fiscal (para atualizar tarefas após cada empresa)
+FISCAL_SYSTEM_URL = os.getenv("FISCAL_SYSTEM_URL", "http://localhost:3000")
