@@ -28,8 +28,8 @@ from playwright.async_api import BrowserContext, Page, async_playwright
 logger = logging.getLogger(__name__)
 
 BASE_ISS = "https://iss.speedgov.com.br"
-DELAY_PAGINA = 8000   # ms — pausa após cada carregamento de página
-DELAY_ANIMACAO = 1500  # ms — pausa para animação de dropdown/modal
+DELAY_PAGINA = 6000   # ms — pausa após cada carregamento de página
+DELAY_ANIMACAO = 1000  # ms — pausa para animação de dropdown/modal
 
 MESES_PT = [
     "", "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL",
@@ -59,6 +59,9 @@ class ISSSession:
         self._browser = None
         self._context: BrowserContext | None = None
         self.page: Page | None = None
+        self._login_str: str = ""
+        self._login_senha: str = ""
+        self._logged_in: bool = False
 
         today = date.today()
         if today.month == 1:
@@ -78,7 +81,7 @@ class ISSSession:
         self._playwright = await async_playwright().start()
         self._browser = await self._playwright.chromium.launch(
             headless=self.headless,
-            slow_mo=600,  # ms de delay entre cada ação do Playwright
+            slow_mo=350,  # ms de delay entre cada ação do Playwright
         )
         self._context = await self._browser.new_context(
             accept_downloads=True,
@@ -100,7 +103,7 @@ class ISSSession:
     # ------------------------------------------------------------------
 
     async def _aguardar_pagina(self, descricao: str = "") -> None:
-        """Aguarda a página carregar + delay humano de 5 segundos."""
+        """Aguarda a página carregar + delay humano + fecha qualquer modal presente."""
         try:
             await self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         except Exception:
@@ -108,6 +111,21 @@ class ISSSession:
         await self.page.wait_for_timeout(DELAY_PAGINA)
         if descricao:
             logger.info("Página carregada: %s — URL: %s", descricao, self.page.url)
+        # Se sessão expirou e foi redirecionado para login, reloga automaticamente
+        if self._logged_in and "/login" in self.page.url and self._login_str and self._login_senha:
+            logger.warning("_aguardar_pagina — sessão expirada, relogando...")
+            try:
+                await self.page.check('input[name="tipo"][value="empresa"]', timeout=5000)
+            except Exception:
+                pass
+            await self.page.fill("input#inscricao", self._login_str)
+            await self.page.fill("input#senha", self._login_senha)
+            await self.page.click('button[type="submit"]')
+            await self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            await self.page.wait_for_timeout(DELAY_PAGINA)
+            logger.info("_aguardar_pagina — relogin concluído, URL: %s", self.page.url)
+        # Fecha automaticamente qualquer modal que apareça após o carregamento
+        await self._fechar_modal_atencao()
 
     async def _clicar_link(self, keywords: list[str], descricao: str = "", scope: str = "body") -> str | None:
         """Localiza por JS e clica no primeiro link/botão visível que contenha uma das keywords.
@@ -228,6 +246,8 @@ class ISSSession:
 
     async def login(self, login_str: str, senha: str) -> None:
         """Único page.goto do bot — ponto de entrada no sistema."""
+        self._login_str = login_str
+        self._login_senha = senha
         logger.info("Login: %s @ %s", login_str, self.municipio)
         await self.page.goto(f"{self.base_url}/login")
         await self._aguardar_pagina("Login")
@@ -251,21 +271,86 @@ class ISSSession:
         if "/login" in self.page.url or "/sessions" in self.page.url:
             raise RuntimeError(f"Login falhou para {login_str} em {self.municipio}")
 
+        self._logged_in = True
         await self._fechar_modal_atencao()
         await self._screenshot("login_ok")
         logger.info("Login OK — URL: %s", self.page.url)
 
     async def _fechar_modal_atencao(self) -> None:
-        """Fecha o modal 'ATENÇÃO' / 'Entendi' do dashboard, se presente."""
-        try:
-            for texto in ["Entendi", "Fechar", "OK", "Ciente"]:
+        """Fecha qualquer modal/aviso presente na página.
+
+        Estratégia: procura diretamente pelos botões de fechar (sem depender
+        do seletor do container do modal). Aguarda o botão ficar visível,
+        clica e confirma que sumiu da tela.
+        """
+        BOTOES = ["Entendi", "Fechar", "OK", "Ciente", "Confirmar", "Sim", "Close"]
+
+        # Verifica rapidamente se há algum botão de fechar visível (até 1.5s)
+        botao_encontrado = False
+        for texto in BOTOES:
+            btn = self.page.locator(f'button:has-text("{texto}"), a.btn:has-text("{texto}")')
+            try:
+                await btn.first.wait_for(state="visible", timeout=1500)
+                botao_encontrado = True
+                break
+            except Exception:
+                continue
+
+        if not botao_encontrado:
+            return  # nenhum modal presente
+
+        logger.info("_fechar_modal_atencao — modal detectado, tentando fechar")
+
+        for tentativa in range(8):
+            fechou = False
+
+            # Tenta cada botão de fechar
+            for texto in BOTOES:
+                for sel in [
+                    f'button:has-text("{texto}")',
+                    f'a.btn:has-text("{texto}")',
+                    f'input[value="{texto}"]',
+                ]:
+                    btn = self.page.locator(sel)
+                    if await btn.count() > 0 and await btn.first.is_visible():
+                        await btn.first.click()
+                        logger.info("_fechar_modal_atencao — clicou em '%s' (tentativa %d)", texto, tentativa + 1)
+                        fechou = True
+                        break
+                if fechou:
+                    break
+
+            if not fechou:
+                # Tenta botão X / close
+                for close_sel in [
+                    'button.close', '[data-dismiss="modal"]', '.btn-close',
+                    'button[aria-label="Close"]', 'button[aria-label="Fechar"]',
+                ]:
+                    x_btn = self.page.locator(close_sel)
+                    if await x_btn.count() > 0 and await x_btn.first.is_visible():
+                        await x_btn.first.click()
+                        logger.info("_fechar_modal_atencao — clicou no X (tentativa %d)", tentativa + 1)
+                        fechou = True
+                        break
+
+            # Aguarda o botão sumir da tela (confirma que o modal fechou)
+            await self.page.wait_for_timeout(1000)
+            ainda_visivel = False
+            for texto in BOTOES:
                 btn = self.page.locator(f'button:has-text("{texto}")')
                 if await btn.count() > 0 and await btn.first.is_visible():
-                    await btn.first.click()
-                    await self.page.wait_for_timeout(400)
-                    return
-        except Exception:
-            pass
+                    ainda_visivel = True
+                    break
+
+            if not ainda_visivel:
+                logger.info("_fechar_modal_atencao — modal fechado com sucesso (tentativa %d)", tentativa + 1)
+                await self.page.wait_for_timeout(500)
+                return
+
+            logger.warning("_fechar_modal_atencao — modal ainda visível, tentativa %d/8", tentativa + 1)
+            await self.page.wait_for_timeout(1500)
+
+        logger.warning("_fechar_modal_atencao — não foi possível fechar o modal após 8 tentativas")
 
     async def logout(self) -> None:
         try:
@@ -278,11 +363,46 @@ class ISSSession:
     # ------------------------------------------------------------------
 
     async def _aplicar_filtro_mes_ano(self, mes: int, ano: int) -> None:
-        """Preenche os campos de filtro de mês/ano na página atual e clica em Filtrar.
+        """Preenche os campos de filtro de mês/ano via Playwright select_option (nativo).
 
-        Suporta selects com valores numéricos (1-12) e com nomes de meses em PT-BR
-        (ex: 'JANEIRO', 'FEVEREIRO'...) como no SpeedGov ISS.
+        Usa select_option do Playwright para garantir que o formulário capture o valor
+        correto ao submeter — setar via JS puro não funciona em alguns frameworks.
         """
+        mes_nome = MESES_PT[mes] if 1 <= mes <= 12 else ""
+
+        # ── Seleciona o MÊS pelo select com id/name contendo 'mes' ou 'compmes' ──
+        for sel_id in [f"q_nfecompmes_eq", f"q_notames_eq", f"q_pclmesref_eq"]:
+            loc = self.page.locator(f"#{sel_id}")
+            if await loc.count() > 0:
+                # Tenta pelo valor decimal (5.0), numérico (5) ou nome (MAIO)
+                for val in [f"{mes}.0", str(mes), mes_nome]:
+                    try:
+                        await loc.select_option(value=val)
+                        logger.info("_aplicar_filtro_mes_ano — mês selecionado: %s via #%s value=%s", mes_nome, sel_id, val)
+                        break
+                    except Exception:
+                        try:
+                            await loc.select_option(label=mes_nome)
+                            logger.info("_aplicar_filtro_mes_ano — mês selecionado por label: %s via #%s", mes_nome, sel_id)
+                            break
+                        except Exception:
+                            pass
+                break
+
+        # ── Seleciona o ANO ──────────────────────────────────────────────────────
+        for sel_id in ["q_nfecompano_eq", "q_notaano_eq", "q_credito_titexerc_eq"]:
+            loc = self.page.locator(f"#{sel_id}")
+            if await loc.count() > 0:
+                for val in [f"{ano}.0", str(ano)]:
+                    try:
+                        await loc.select_option(value=val)
+                        logger.info("_aplicar_filtro_mes_ano — ano selecionado: %d via #%s value=%s", ano, sel_id, val)
+                        break
+                    except Exception:
+                        pass
+                break
+
+        # ── Fallback JS para selects não mapeados pelos IDs acima ────────────────
         resultado = await self.page.evaluate(
             """
             ([mes, ano, mesesNome]) => {
@@ -393,16 +513,25 @@ class ISSSession:
 
         await self.page.wait_for_timeout(500)
 
-        # Clica em Filtrar
-        filtrou = await self._clicar_link(["filtrar", "pesquisar", "buscar", "aplicar"], "Filtrar")
+        # Clica no botão SUBMIT do formulário (não em <a href> que tem parâmetros antigos)
+        filtrou = False
+        for sel in [
+            'input[type="submit"][value="Filtrar"]',
+            'input[type="submit"][value="filtrar"]',
+            'button[type="submit"]:has-text("Filtrar")',
+            'input[type="submit"]',
+            'button[type="submit"]',
+        ]:
+            btn = self.page.locator(sel)
+            if await btn.count() > 0 and await btn.first.is_visible():
+                await btn.first.click()
+                await self._aguardar_pagina("Filtrar")
+                filtrou = True
+                logger.info("_aplicar_filtro_mes_ano — submit via: %s | URL: %s", sel, self.page.url)
+                break
+
         if not filtrou:
-            await self.page.evaluate("""
-                () => {
-                    const btn = document.querySelector('input[type="submit"], button[type="submit"]');
-                    if (btn) btn.click();
-                }
-            """)
-            await self._aguardar_pagina("Filtrar (submit)")
+            logger.warning("_aplicar_filtro_mes_ano — botão submit não encontrado")
 
     # ------------------------------------------------------------------
     # Notas Fiscais
@@ -842,15 +971,69 @@ class ISSSession:
         logger.info("[%s] Passo 4 — URL: %s", prefixo, self.page.url)
 
         # ── 5. Imprimir / Salvar PDF ───────────────────────────────────
-        logger.info("[%s] Passo 5 — clicando em Imprimir / Salvar PDF", prefixo)
+        # Após confirmar, o sistema pode redirecionar para outra página.
+        # Se o link de impressão não estiver na página atual, volta para
+        # a lista de escriturações e busca o link na linha da competência.
+        logger.info("[%s] Passo 5 — clicando em Imprimir / Salvar PDF | URL atual: %s", prefixo, self.page.url)
+
         path = await self._baixar_por_clique(
             ["imprimir declaração", "imprimir declaracao", "imprimir", "/pdfs/declaracao"],
             filename,
+            excluir_keywords=["boleto", "situacional"],
         )
+
+        if not path:
+            logger.info("[%s] Passo 5 — link não encontrado na página atual, voltando para lista de escriturações", prefixo)
+            # Volta para a lista de escriturações correta (Prestador ou Tomador)
+            if "tomador" in prefixo.lower():
+                await self._ir_tomador("Escrituração")
+            else:
+                await self._ir_prestador("Escriturações")
+
+            await self._screenshot(f"{prefixo}_05_lista_escrit")
+
+            # Busca link de imprimir na linha da competência
+            mes_nome = MESES_PT[mes] if 1 <= mes <= 12 else ""
+            patterns = [mes_nome, f"{mes:02d}/{ano}", f"{mes}/{ano}"]
+            href_imprimir = await self.page.evaluate(
+                """
+                ([patterns, ano]) => {
+                    const anoStr = String(ano);
+                    for (const tr of document.querySelectorAll('table tbody tr')) {
+                        const comp = (tr.querySelector('td') || {textContent:''}).textContent.trim().toUpperCase();
+                        if (!patterns.some(p => p && comp.includes(p.toUpperCase()))) continue;
+                        if (!comp.includes(anoStr)) continue;
+                        for (const a of tr.querySelectorAll('a[href]')) {
+                            const href  = (a.href || '').toLowerCase();
+                            const title = (a.title || a.getAttribute('data-original-title') || a.textContent || '').toLowerCase();
+                            if (href.includes('declaracao') || title.includes('imprimir') || title.includes('declaração')) {
+                                return a.href;
+                            }
+                        }
+                    }
+                    return null;
+                }
+                """,
+                [patterns, ano],
+            )
+
+            if href_imprimir:
+                logger.info("[%s] Passo 5 — link de imprimir encontrado na lista: %s", prefixo, href_imprimir)
+                path = await self._baixar_url_direta(href_imprimir, filename)
+                if not path:
+                    path = await self._baixar_por_clique(
+                        ["imprimir declaração", "imprimir declaracao", "pdfs/declaracao"],
+                        filename,
+                        excluir_keywords=["boleto", "situacional"],
+                    )
+            else:
+                logger.warning("[%s] Passo 5 — link de imprimir não encontrado na lista de escriturações", prefixo)
+
         if path:
             logger.info("[%s] PDF salvo: %s", prefixo, path)
         else:
-            logger.warning("[%s] Link de impressão não encontrado na página atual.", prefixo)
+            logger.warning("[%s] Passo 5 — PDF não foi baixado", prefixo)
+
         await self._screenshot(f"{prefixo}_05_pdf")
         return path
 
@@ -1039,6 +1222,12 @@ class ISSSession:
 
         logger.info("_baixar_por_clique — link: %s → %s", keywords[0], href)
 
+        # ── Estratégia 1: download direto via request (sem abrir aba) ─
+        # Tenta primeiro sem clicar — evita abrir qualquer PDF em nova aba
+        path = await self._baixar_url_direta(href, filename)
+        if path:
+            return path
+
         _JS_CLICK = (
             "(href) => { "
             "const a = [...document.querySelectorAll('a[href]')]"
@@ -1047,9 +1236,26 @@ class ISSSession:
             "}"
         )
 
-        # ── Estratégia 1: download com Content-Disposition ────────────
+        # ── Estratégia 2: intercepta popup antes de clicar ────────────
+        # Usa expect_popup para capturar a aba antes de abrir, fecha após pegar URL
         try:
-            async with self.page.expect_download(timeout=8000) as dl_info:
+            async with self.page.expect_popup(timeout=6000) as popup_info:
+                await self.page.evaluate(_JS_CLICK, href)
+            popup = await popup_info.value
+            try:
+                await popup.wait_for_load_state("domcontentloaded", timeout=8000)
+            except Exception:
+                pass
+            popup_url = popup.url
+            await popup.close()
+            logger.info("_baixar_por_clique — popup interceptado e fechado (%s)", popup_url)
+            return await self._baixar_url_direta(popup_url, filename)
+        except Exception:
+            pass
+
+        # ── Estratégia 3: Content-Disposition (download direto do browser)
+        try:
+            async with self.page.expect_download(timeout=6000) as dl_info:
                 await self.page.evaluate(_JS_CLICK, href)
             download = await dl_info.value
             filepath = os.path.join(self.download_dir, filename)
@@ -1059,25 +1265,8 @@ class ISSSession:
         except Exception:
             pass
 
-        # ── Estratégia 2: PDF abre em popup → captura URL, fecha aba ──
-        try:
-            async with self.page.expect_popup(timeout=8000) as popup_info:
-                await self.page.evaluate(_JS_CLICK, href)
-            popup = await popup_info.value
-            try:
-                await popup.wait_for_load_state("domcontentloaded", timeout=10000)
-            except Exception:
-                pass
-            popup_url = popup.url
-            await popup.close()
-            logger.info("_baixar_por_clique — popup interceptado (%s), baixando via request", popup_url)
-            return await self._baixar_url_direta(popup_url, filename)
-        except Exception:
-            pass
-
-        # ── Estratégia 3: baixa href diretamente via request ──────────
-        logger.info("_baixar_por_clique — fallback request direto: %s", href)
-        return await self._baixar_url_direta(href, filename)
+        logger.warning("_baixar_por_clique — todas as estratégias falharam para: %s", href)
+        return None
 
     # ------------------------------------------------------------------
     # Declaração PDF
