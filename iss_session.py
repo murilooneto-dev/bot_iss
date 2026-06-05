@@ -289,8 +289,15 @@ class ISSSession:
                 const log = [];
 
                 function tentarSetar(sel, valor, nomeMes) {
-                    // 1) valor numérico exato
-                    for (const v of [String(valor), String(valor).padStart(2,'0')]) {
+                    // 1) valor numérico exato, zero-padded e decimal (ex: "5.0", "2026.0")
+                    const tentativas = [
+                        String(valor),
+                        String(valor).padStart(2,'0'),
+                        String(parseFloat(valor)),      // "5.0"
+                        valor + '.0',                   // "5.0"
+                        String(valor) + '.0',
+                    ];
+                    for (const v of tentativas) {
                         if ([...sel.options].some(o => o.value === v)) {
                             sel.value = v;
                             sel.dispatchEvent(new Event('change', {bubbles:true}));
@@ -309,9 +316,10 @@ class ISSSession:
                             }
                         }
                     }
-                    // 3) texto da opção igual ao número
+                    // 3) texto da opção igual ao número ou ao valor parseado
                     for (const o of sel.options) {
-                        if (o.text.trim() === String(valor) || o.text.trim() === String(valor).padStart(2,'0')) {
+                        const t = o.text.trim();
+                        if (t === String(valor) || t === String(valor).padStart(2,'0') || parseFloat(t) === parseFloat(valor)) {
                             sel.value = o.value;
                             sel.dispatchEvent(new Event('change', {bubbles:true}));
                             return 'txt:' + o.value;
@@ -342,11 +350,11 @@ class ISSSession:
                         })
                     );
 
-                    // Detecta select de ANO: por nome/id/label ou opções >= 2000
+                    // Detecta select de ANO: por nome/id/label ou opções >= 2000 (inclusive "2026.0")
                     const ehAno = (
                         id.includes('ano') || name.includes('ano') ||
                         label.includes('ano') ||
-                        opts.map(o => parseInt(o.value)).filter(v => !isNaN(v)).some(v => v >= 2000)
+                        opts.map(o => parseFloat(o.value)).filter(v => !isNaN(v)).some(v => v >= 2000)
                     );
 
                     if (!mesFilled && ehMes) {
