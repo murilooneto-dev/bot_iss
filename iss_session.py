@@ -28,8 +28,8 @@ from playwright.async_api import BrowserContext, Page, async_playwright
 logger = logging.getLogger(__name__)
 
 BASE_ISS = "https://iss.speedgov.com.br"
-DELAY_PAGINA = 5000   # ms — pausa após cada carregamento de página
-DELAY_ANIMACAO = 800  # ms — pausa para animação de dropdown/modal
+DELAY_PAGINA = 8000   # ms — pausa após cada carregamento de página
+DELAY_ANIMACAO = 1500  # ms — pausa para animação de dropdown/modal
 
 MESES_PT = [
     "", "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL",
@@ -76,7 +76,10 @@ class ISSSession:
 
     async def start(self) -> None:
         self._playwright = await async_playwright().start()
-        self._browser = await self._playwright.chromium.launch(headless=self.headless)
+        self._browser = await self._playwright.chromium.launch(
+            headless=self.headless,
+            slow_mo=600,  # ms de delay entre cada ação do Playwright
+        )
         self._context = await self._browser.new_context(
             accept_downloads=True,
             viewport={"width": 1280, "height": 900},
