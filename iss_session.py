@@ -278,42 +278,116 @@ class ISSSession:
     # ------------------------------------------------------------------
 
     async def _aplicar_filtro_mes_ano(self, mes: int, ano: int) -> None:
-        """Preenche os campos de filtro de mês/ano na página atual e clica em Filtrar."""
-        await self.page.evaluate(
+        """Preenche os campos de filtro de mês/ano na página atual e clica em Filtrar.
+
+        Suporta selects com valores numéricos (1-12) e com nomes de meses em PT-BR
+        (ex: 'JANEIRO', 'FEVEREIRO'...) como no SpeedGov ISS.
+        """
+        resultado = await self.page.evaluate(
             """
-            ([mes, ano]) => {
-                // Tenta selects
+            ([mes, ano, mesesNome]) => {
+                const log = [];
+
+                function tentarSetar(sel, valor, nomeMes) {
+                    // 1) valor numérico exato
+                    for (const v of [String(valor), String(valor).padStart(2,'0')]) {
+                        if ([...sel.options].some(o => o.value === v)) {
+                            sel.value = v;
+                            sel.dispatchEvent(new Event('change', {bubbles:true}));
+                            return 'num:' + v;
+                        }
+                    }
+                    // 2) nome do mês em PT-BR no value ou no texto da opção
+                    if (nomeMes) {
+                        for (const o of sel.options) {
+                            const txt = o.text.trim().toUpperCase();
+                            const val = o.value.trim().toUpperCase();
+                            if (txt === nomeMes || val === nomeMes) {
+                                sel.value = o.value;
+                                sel.dispatchEvent(new Event('change', {bubbles:true}));
+                                return 'nome:' + o.value;
+                            }
+                        }
+                    }
+                    // 3) texto da opção igual ao número
+                    for (const o of sel.options) {
+                        if (o.text.trim() === String(valor) || o.text.trim() === String(valor).padStart(2,'0')) {
+                            sel.value = o.value;
+                            sel.dispatchEvent(new Event('change', {bubbles:true}));
+                            return 'txt:' + o.value;
+                        }
+                    }
+                    return null;
+                }
+
+                const nomeMes = mesesNome[mes] || '';  // ex: "MAIO"
+                let mesFilled = false, anoFilled = false;
+
                 for (const sel of document.querySelectorAll('select:not([disabled])')) {
-                    const opts = [...sel.options].map(o => parseInt(o.value)).filter(v => !isNaN(v));
-                    if (opts.length === 0) continue;
-                    if (opts.every(v => v >= 0 && v <= 12) && opts.length <= 13) {
-                        sel.value = String(mes);
-                        sel.dispatchEvent(new Event('change', {bubbles:true}));
-                    } else if (opts.some(v => v >= 2000)) {
-                        sel.value = String(ano);
-                        sel.dispatchEvent(new Event('change', {bubbles:true}));
+                    const id    = (sel.id   || '').toLowerCase();
+                    const name  = (sel.name || '').toLowerCase();
+                    const label = sel.labels && sel.labels[0]
+                        ? sel.labels[0].textContent.toLowerCase() : '';
+                    const opts  = [...sel.options].filter(o => o.value !== '');
+
+                    // Detecta select de MÊS: por nome/id/label ou opções com nomes de meses PT
+                    const ehMes = (
+                        id.includes('mes') || name.includes('mes') ||
+                        label.includes('mês') || label.includes('mes') ||
+                        label.includes('competencia') || label.includes('competência') ||
+                        opts.some(o => {
+                            const t = o.text.trim().toUpperCase();
+                            return ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO',
+                                    'JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'].includes(t);
+                        })
+                    );
+
+                    // Detecta select de ANO: por nome/id/label ou opções >= 2000
+                    const ehAno = (
+                        id.includes('ano') || name.includes('ano') ||
+                        label.includes('ano') ||
+                        opts.map(o => parseInt(o.value)).filter(v => !isNaN(v)).some(v => v >= 2000)
+                    );
+
+                    if (!mesFilled && ehMes) {
+                        const r = tentarSetar(sel, mes, nomeMes);
+                        if (r) { mesFilled = true; log.push('mes=' + r + ' id=' + sel.id); }
+                    } else if (!anoFilled && ehAno) {
+                        const r = tentarSetar(sel, ano, null);
+                        if (r) { anoFilled = true; log.push('ano=' + r + ' id=' + sel.id); }
                     }
                 }
-                // Tenta inputs de texto (mes/ano)
+
+                // Inputs de texto como fallback
                 for (const inp of document.querySelectorAll('input[type="text"], input[type="number"]')) {
                     const name = (inp.name || inp.id || '').toLowerCase();
-                    if (name.includes('mes') || name.includes('month')) {
+                    if (!mesFilled && (name.includes('mes') || name.includes('month'))) {
                         inp.value = String(mes).padStart(2,'0');
                         inp.dispatchEvent(new Event('input', {bubbles:true}));
-                    } else if (name.includes('ano') || name.includes('year')) {
+                        mesFilled = true;
+                    } else if (!anoFilled && (name.includes('ano') || name.includes('year'))) {
                         inp.value = String(ano);
                         inp.dispatchEvent(new Event('input', {bubbles:true}));
+                        anoFilled = true;
                     }
                 }
+
+                return { mesFilled, anoFilled, log };
             }
             """,
-            [mes, ano],
+            [mes, ano, MESES_PT],
         )
-        await self.page.wait_for_timeout(300)
+        logger.info("_aplicar_filtro_mes_ano %02d/%d — %s", mes, ano, resultado)
+        if not resultado.get("mesFilled"):
+            logger.warning("_aplicar_filtro_mes_ano — MÊS não foi preenchido!")
+        if not resultado.get("anoFilled"):
+            logger.warning("_aplicar_filtro_mes_ano — ANO não foi preenchido!")
+
+        await self.page.wait_for_timeout(500)
+
         # Clica em Filtrar
         filtrou = await self._clicar_link(["filtrar", "pesquisar", "buscar", "aplicar"], "Filtrar")
         if not filtrou:
-            # Tenta submit do formulário
             await self.page.evaluate("""
                 () => {
                     const btn = document.querySelector('input[type="submit"], button[type="submit"]');
