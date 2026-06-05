@@ -323,9 +323,8 @@ class ISSSession:
     # Notas Fiscais
     # ------------------------------------------------------------------
 
-    async def get_notas_mes_atual(self) -> list[dict]:
+    async def get_notas_mes(self, mes: int, ano: int) -> list[dict]:
         """Acessa Prestador > Notas Fiscais via menu, filtra pela competência e coleta NFS-e."""
-        mes, ano = self.mes_atual, self.ano_atual
         await self._ir_prestador("Notas Fiscais")
         await self._screenshot("notas_01_lista")
 
@@ -336,7 +335,6 @@ class ISSSession:
         while True:
             rows = await self._parse_notas_table()
             all_rows.extend(rows)
-            # Próxima página
             next_link = self.page.locator(
                 'a[rel="next"], .pagination a:has-text("›"), .pagination a:has-text("Próximo")'
             )
@@ -346,8 +344,16 @@ class ISSSession:
             else:
                 break
 
-        logger.info("get_notas_mes_atual — %d nota(s) encontrada(s)", len(all_rows))
+        logger.info("get_notas_mes — %02d/%d — %d nota(s) encontrada(s)", mes, ano, len(all_rows))
         return all_rows
+
+    async def get_notas_mes_atual(self) -> list[dict]:
+        return await self.get_notas_mes(self.mes_atual, self.ano_atual)
+
+    async def get_notas_mes_anterior(self) -> list[dict]:
+        mes = self.mes_atual - 1 or 12
+        ano = self.ano_atual if self.mes_atual > 1 else self.ano_atual - 1
+        return await self.get_notas_mes(mes, ano)
 
     async def _parse_notas_table(self) -> list[dict]:
         return await self.page.evaluate("""
@@ -864,84 +870,133 @@ class ISSSession:
                 return
 
     # ------------------------------------------------------------------
-    # Downloads — por clique em links da página
+    # Downloads — download direto, sem abrir PDF em nova aba
     # ------------------------------------------------------------------
 
-    async def _baixar_por_clique(self, keywords: list[str], filename: str) -> str | None:
-        """Localiza link de impressão/download na página, clica e salva o arquivo.
+    async def _baixar_url_direta(self, url: str, filename: str) -> str | None:
+        """Baixa um arquivo via request HTTP direto, sem abrir nova aba.
 
-        Suporta dois modos:
-        - Download direto (arquivo baixado automaticamente pelo browser)
-        - Popup / nova aba (PDF abre em nova aba; fecha após download)
+        Usa os cookies da sessão Playwright para autenticar a requisição.
         """
         filepath = os.path.join(self.download_dir, filename)
+        try:
+            resp = await self._context.request.get(url, timeout=30000)
+            ct = resp.headers.get("content-type", "").lower()
+            body = await resp.body()
+            if resp.ok and ("pdf" in ct or "octet-stream" in ct or len(body) > 1000):
+                with open(filepath, "wb") as f:
+                    f.write(body)
+                logger.info("Download direto OK: %s (%d bytes)", filepath, len(body))
+                return filepath
+            logger.warning(
+                "_baixar_url_direta — resposta inválida: status=%d content-type=%s size=%d url=%s",
+                resp.status, ct, len(body), url,
+            )
+        except Exception as exc:
+            logger.warning("_baixar_url_direta — erro: %s | url: %s", exc, url)
+        return None
 
-        # Encontra o href do link antes de clicar
+    async def _encontrar_href(
+        self,
+        keywords: list[str],
+        excluir_keywords: list[str] | None = None,
+    ) -> str | None:
+        """Localiza o href de um link na página usando múltiplos atributos.
+
+        Verifica: href, textContent, title, aria-label, data-original-title.
+        Retorna o primeiro link que bata com uma keyword e não bata com nenhuma exclusão.
+        """
+        excluir = excluir_keywords or []
         href = await self.page.evaluate(
             """
-            (keywords) => {
+            ([keywords, excluir]) => {
                 for (const el of document.querySelectorAll('a[href]')) {
-                    const text = (el.textContent || '').toLowerCase().trim();
-                    const href  = el.href.toLowerCase();
-                    if (keywords.some(k => text.includes(k) || href.includes(k))) {
+                    if (el.offsetParent === null) continue;   // invisível
+                    const href  = (el.href  || '').toLowerCase();
+                    const text  = (el.textContent || '').toLowerCase().trim();
+                    const title = (
+                        el.title ||
+                        el.getAttribute('data-original-title') ||
+                        el.getAttribute('aria-label') ||
+                        el.getAttribute('data-tooltip') ||
+                        ''
+                    ).toLowerCase();
+                    const combined = href + ' ' + text + ' ' + title;
+                    if (excluir.some(e => combined.includes(e.toLowerCase()))) continue;
+                    if (keywords.some(k => combined.includes(k.toLowerCase()))) {
                         return el.href;
                     }
                 }
                 return null;
             }
             """,
-            [k.lower() for k in keywords],
+            [keywords, excluir],
         )
+        return href
 
+    async def _baixar_por_clique(
+        self,
+        keywords: list[str],
+        filename: str,
+        excluir_keywords: list[str] | None = None,
+    ) -> str | None:
+        """Localiza link na página e baixa o arquivo SEM abrir nova aba.
+
+        Estratégias (em ordem):
+        1. expect_download  — link dispara Content-Disposition: attachment
+        2. expect_popup     — PDF abriria em nova aba; captura URL e baixa via request
+        3. Fallback direto  — baixa o href via request HTTP (mais comum no SpeedGov)
+        """
+        href = await self._encontrar_href(keywords, excluir_keywords)
         if not href:
-            logger.warning("_baixar_por_clique — link não encontrado para: %s", keywords)
+            logger.warning("_baixar_por_clique — link não encontrado: %s", keywords)
             return None
 
-        logger.info("_baixar_por_clique — clicando em: %s → %s", keywords[0], href)
+        logger.info("_baixar_por_clique — link: %s → %s", keywords[0], href)
 
-        # Tenta capturar como download de arquivo
+        _JS_CLICK = (
+            "(href) => { "
+            "const a = [...document.querySelectorAll('a[href]')]"
+            ".find(el => el.href === href); "
+            "if (a) a.click(); "
+            "}"
+        )
+
+        # ── Estratégia 1: download com Content-Disposition ────────────
         try:
-            async with self.page.expect_download(timeout=15000) as dl_info:
-                await self.page.evaluate(
-                    "(href) => { const a = document.querySelector(`a[href='${href}']`) || [...document.querySelectorAll('a')].find(el => el.href === href); if (a) a.click(); }",
-                    href,
-                )
+            async with self.page.expect_download(timeout=8000) as dl_info:
+                await self.page.evaluate(_JS_CLICK, href)
             download = await dl_info.value
+            filepath = os.path.join(self.download_dir, filename)
             await download.save_as(filepath)
-            logger.info("Download salvo: %s", filepath)
+            logger.info("_baixar_por_clique (Content-Disposition): %s", filepath)
             return filepath
         except Exception:
             pass
 
-        # Tenta capturar como popup/nova aba
+        # ── Estratégia 2: PDF abre em popup → captura URL, fecha aba ──
         try:
-            async with self.page.expect_popup(timeout=10000) as popup_info:
-                await self.page.evaluate(
-                    "(href) => { const a = [...document.querySelectorAll('a')].find(el => el.href === href); if (a) a.click(); }",
-                    href,
-                )
+            async with self.page.expect_popup(timeout=8000) as popup_info:
+                await self.page.evaluate(_JS_CLICK, href)
             popup = await popup_info.value
-            await popup.wait_for_load_state("domcontentloaded", timeout=15000)
-            await popup.wait_for_timeout(2000)
-            popup_url = popup.url
-            content_type = ""
             try:
-                # Baixa o conteúdo via request usando cookies da sessão
-                resp = await self._context.request.get(popup_url)
-                content_type = resp.headers.get("content-type", "")
-                if resp.ok and ("pdf" in content_type or len(await resp.body()) > 1000):
-                    with open(filepath, "wb") as f:
-                        f.write(await resp.body())
-                    logger.info("PDF via popup salvo: %s", filepath)
-                    await popup.close()
-                    return filepath
+                await popup.wait_for_load_state("domcontentloaded", timeout=10000)
             except Exception:
                 pass
+            popup_url = popup.url
             await popup.close()
-        except Exception as exc:
-            logger.warning("_baixar_por_clique — popup falhou: %s", exc)
+            logger.info("_baixar_por_clique — popup interceptado (%s), baixando via request", popup_url)
+            return await self._baixar_url_direta(popup_url, filename)
+        except Exception:
+            pass
 
-        return None
+        # ── Estratégia 3: baixa href diretamente via request ──────────
+        logger.info("_baixar_por_clique — fallback request direto: %s", href)
+        return await self._baixar_url_direta(href, filename)
+
+    # ------------------------------------------------------------------
+    # Declaração PDF
+    # ------------------------------------------------------------------
 
     async def download_declaracao(
         self,
@@ -950,64 +1005,86 @@ class ISSSession:
         notanumdec: str,
         full_url: str | None = None,
     ) -> str | None:
-        """Clica em 'Imprimir Declaração' na tabela de escriturações e baixa o PDF."""
-        filename = f"declaracao_{mes:02d}_{ano}_{notanumdec}.pdf"
+        """Baixa a declaração PDF da escrituração do Prestador.
 
-        # Tenta clicar no link de imprimir da linha da tabela
+        Identifica o link por texto/href contendo 'declaracao' ou 'imprimir',
+        excluindo explicitamente links de boleto e situacional.
+        """
+        filename = f"declaracao_ISS_{mes:02d}_{ano}.pdf"
+
         path = await self._baixar_por_clique(
-            ["imprimir declaração", "imprimir declaracao", "/pdfs/declaracao"],
-            filename,
+            keywords=["imprimir declaração", "imprimir declaracao", "pdfs/declaracao", "declaracao"],
+            filename=filename,
+            excluir_keywords=["boleto", "situacional", "modulo4/boletos"],
         )
         if path:
             return path
 
-        # Fallback: usa o URL que já conhecemos (via request, sem page.goto)
+        # Fallback: URL já conhecida de _find_escrituracao_in_table
         if full_url:
-            try:
-                resp = await self._context.request.get(full_url)
-                ct = resp.headers.get("content-type", "")
-                if resp.ok and "pdf" in ct.lower():
-                    fp = os.path.join(self.download_dir, filename)
-                    with open(fp, "wb") as f:
-                        f.write(await resp.body())
-                    logger.info("Declaração (fallback request): %s", fp)
-                    return fp
-            except Exception as exc:
-                logger.warning("download_declaracao fallback falhou: %s", exc)
+            path = await self._baixar_url_direta(full_url, filename)
+            if path:
+                return path
 
+        logger.warning("download_declaracao — não foi possível baixar %02d/%d", mes, ano)
         return None
 
-    async def download_boletos_escrituracao(self, mes: int, ano: int) -> list[str]:
-        """Clica no ícone 'Lista de Boletos da Competência' na linha da escrituração
-        e baixa todos os boletos disponíveis na página seguinte.
+    # ------------------------------------------------------------------
+    # Boletos ISS
+    # ------------------------------------------------------------------
 
-        Deve ser chamado quando a página atual já está em Prestador > Escriturações.
+    async def _inspecionar_links_tabela(self, descricao: str) -> None:
+        """Loga todos os links visíveis da tabela para diagnóstico."""
+        links = await self.page.evaluate("""
+            () => [...document.querySelectorAll('table tbody tr a[href]')].map(a => ({
+                href:  a.href,
+                text:  a.textContent.trim(),
+                title: a.title || a.getAttribute('data-original-title') || a.getAttribute('aria-label') || '',
+            }))
+        """)
+        for lk in links:
+            logger.debug("[%s] link: text='%s' title='%s' href=%s", descricao, lk["text"], lk["title"], lk["href"])
+
+    async def download_boletos_escrituracao(self, mes: int, ano: int) -> list[str]:
+        """Na página de Escriturações, localiza o link 'Lista de Boletos' da competência
+        e baixa todos os boletos ISS disponíveis.
+
+        Identificação do link de boleto na linha:
+          - href contém 'boleto'
+          - title/aria-label/data-original-title contém 'boleto' ou 'lista'
+          NÃO usa posição (primeiro/último link) para evitar confusão com declaração.
         """
-        logger.info("download_boletos_escrituracao — buscando ícone de boleto na linha %02d/%d", mes, ano)
+        logger.info("download_boletos_escrituracao — competência %02d/%d", mes, ano)
         mes_nome = MESES_PT[mes] if 1 <= mes <= 12 else ""
         patterns = [mes_nome, f"{mes:02d}/{ano}", f"{mes}/{ano}"]
 
-        # Clica no ícone de boleto (primeiro ícone/link) da linha correspondente ao mês
-        href_boleto_lista = await self.page.evaluate(
+        await self._inspecionar_links_tabela("escrituracao_linha")
+
+        href_lista_boletos = await self.page.evaluate(
             """
             ([patterns, ano]) => {
                 const anoStr = String(ano);
                 for (const tr of document.querySelectorAll('table tbody tr')) {
-                    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
-                    const comp = (cells[0] || '').toUpperCase();
+                    const comp = (tr.querySelector('td') || {textContent:''}).textContent.trim().toUpperCase();
                     if (!patterns.some(p => p && comp.includes(p.toUpperCase()))) continue;
                     if (!comp.includes(anoStr)) continue;
-                    // Procura link com "boleto" no href ou title/tooltip contendo "boleto"
-                    const links = [...tr.querySelectorAll('a[href]')];
-                    for (const a of links) {
+
+                    for (const a of tr.querySelectorAll('a[href]')) {
                         const href  = (a.href  || '').toLowerCase();
-                        const title = (a.title || a.getAttribute('data-original-title') || a.textContent || '').toLowerCase();
-                        if (href.includes('boleto') || title.includes('boleto') || title.includes('lista')) {
+                        const title = (
+                            a.title ||
+                            a.getAttribute('data-original-title') ||
+                            a.getAttribute('aria-label') ||
+                            a.getAttribute('data-tooltip') ||
+                            a.textContent || ''
+                        ).toLowerCase();
+                        // Identifica exclusivamente pelo texto/title/href — nunca por posição
+                        if (href.includes('boleto') || title.includes('boleto') || title.includes('lista de boleto')) {
                             return a.href;
                         }
                     }
-                    // Fallback: primeiro ícone da linha (costuma ser o de boleto)
-                    if (links.length > 0) return links[0].href;
+                    // Se não achou link específico de boleto, retorna null (não fallback posicional)
+                    return null;
                 }
                 return null;
             }
@@ -1015,144 +1092,169 @@ class ISSSession:
             [patterns, ano],
         )
 
-        if not href_boleto_lista:
-            logger.warning("download_boletos_escrituracao — ícone de boleto não encontrado na linha")
+        if not href_lista_boletos:
+            logger.warning(
+                "download_boletos_escrituracao — link 'Lista de Boletos' não encontrado na linha %02d/%d "
+                "(sem fallback posicional — usando método alternativo via menu Boletos)",
+                mes, ano,
+            )
             return []
 
-        logger.info("download_boletos_escrituracao — clicando em lista de boletos: %s", href_boleto_lista)
-
-        # Clica no link e aguarda a página de boletos carregar
+        logger.info("download_boletos_escrituracao — navegando para lista de boletos: %s", href_lista_boletos)
         await self.page.evaluate(
-            "(href) => { const a = [...document.querySelectorAll('a')].find(el => el.href === href); if (a) a.click(); }",
-            href_boleto_lista,
+            "(href) => { const a = [...document.querySelectorAll('a[href]')].find(el => el.href === href); if (a) a.click(); }",
+            href_lista_boletos,
         )
         await self._aguardar_pagina("Lista de Boletos da Competência")
-        await self._screenshot("boletos_escrituracao_01_lista")
-        logger.info("download_boletos_escrituracao — URL: %s", self.page.url)
+        await self._screenshot("boletos_01_lista")
+        logger.info("download_boletos_escrituracao — URL lista: %s", self.page.url)
 
-        # Verifica se há registros na página
+        return await self._baixar_boletos_da_pagina(mes, ano)
+
+    async def download_boletos_iss(self, mes: int, ano: int) -> list[str]:
+        """Prestador > Boletos via menu → filtra por mes/ano → baixa boletos ISS."""
+        logger.info("download_boletos_iss — navegando pelo menu Boletos")
+        await self._ir_prestador("Boletos")
+        await self._screenshot("boletos_menu_01_lista")
+
+        await self._aplicar_filtro_mes_ano(mes, ano)
+        await self._screenshot("boletos_menu_02_filtrado")
+        logger.info("download_boletos_iss — URL após filtro: %s", self.page.url)
+
+        return await self._baixar_boletos_da_pagina(mes, ano)
+
+    async def _baixar_boletos_da_pagina(self, mes: int, ano: int) -> list[str]:
+        """Baixa todos os boletos ISS em aberto da tabela da página atual.
+
+        Identifica links de impressão por: href/title/aria contendo 'boleto' ou 'imprimir'.
+        Ignora linhas pagas, canceladas e tributos que não sejam ISS.
+        """
+        await self._inspecionar_links_tabela("boletos_pagina")
+
         tem_registros = await self.page.evaluate("""
             () => {
                 const rows = document.querySelectorAll('table tbody tr');
-                // Ignora linha de "nenhum registro"
                 if (rows.length === 0) return false;
                 const texto = (rows[0].textContent || '').toLowerCase();
-                if (texto.includes('nenhum') || texto.includes('não há') || texto.includes('sem registro')) return false;
-                return true;
+                return !(texto.includes('nenhum') || texto.includes('não há') || texto.includes('sem registro'));
             }
         """)
 
         if not tem_registros:
-            logger.info("download_boletos_escrituracao — nenhum boleto disponível para %02d/%d", mes, ano)
+            logger.info("_baixar_boletos_da_pagina — nenhum boleto na tabela para %02d/%d", mes, ano)
             return []
 
-        # Coleta todos os links "Imprimir Boleto" da página
-        boleto_hrefs = await self.page.evaluate("""
+        boleto_links = await self.page.evaluate("""
             () => {
-                const hrefs = [];
+                const resultado = [];
                 document.querySelectorAll('table tbody tr').forEach((tr, i) => {
-                    // Ignora linhas pagas ou canceladas
                     const rowText = tr.textContent.toLowerCase();
+                    // Ignora pagas e canceladas
                     if (rowText.includes('pago') || rowText.includes('cancelad')) return;
-                    // Busca link de imprimir boleto
+
+                    // Verifica se é ISS (procura texto "ISS" em qualquer célula)
+                    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
+                    const ehISS = cells.some(c => /\\biss\\b/i.test(c));
+
                     for (const a of tr.querySelectorAll('a[href]')) {
                         const href  = (a.href  || '').toLowerCase();
-                        const title = (a.title || a.getAttribute('data-original-title') || a.textContent || '').toLowerCase();
-                        if (href.includes('boleto') || title.includes('imprimir') || title.includes('boleto')) {
-                            hrefs.push({ href: a.href, idx: i });
+                        const title = (
+                            a.title ||
+                            a.getAttribute('data-original-title') ||
+                            a.getAttribute('aria-label') ||
+                            a.getAttribute('data-tooltip') ||
+                            a.textContent || ''
+                        ).toLowerCase();
+                        const combined = href + ' ' + title;
+                        // Link de impressão de boleto
+                        const ehBoleto = (
+                            combined.includes('boleto') ||
+                            combined.includes('imprimir boleto') ||
+                            (combined.includes('imprimir') && !combined.includes('declaracao') && !combined.includes('situacional'))
+                        );
+                        if (ehBoleto) {
+                            resultado.push({ href: a.href, idx: i, ehISS, cells });
                             break;
                         }
                     }
                 });
-                return hrefs;
+                return resultado;
             }
         """)
 
+        if not boleto_links:
+            logger.warning("_baixar_boletos_da_pagina — nenhum link de boleto identificado para %02d/%d", mes, ano)
+            return []
+
         downloaded: list[str] = []
-        for item in boleto_hrefs:
-            filename = f"boleto_iss_{mes:02d}_{ano}_{item['idx'] + 1}.pdf"
-            path = await self._baixar_por_clique(
-                ["imprimir boleto", "boleto", item["href"].lower()[-40:]],
-                filename,
-            )
+        seq = 1
+        for item in boleto_links:
+            # Se a tabela tiver coluna ISS identificável, filtra; senão baixa todos
+            if not item.get("ehISS", True):
+                logger.info("_baixar_boletos_da_pagina — linha %d ignorada (não é ISS): %s", item["idx"], item.get("cells"))
+                continue
+
+            filename = f"boleto_ISS_{mes:02d}_{ano}_{seq:02d}.pdf"
+            path = await self._baixar_url_direta(item["href"], filename)
             if path:
                 downloaded.append(path)
-                logger.info("download_boletos_escrituracao — boleto salvo: %s", path)
+                logger.info("_baixar_boletos_da_pagina — boleto %d salvo: %s", seq, path)
+                seq += 1
             else:
-                logger.warning("download_boletos_escrituracao — falhou ao baixar boleto idx=%d", item["idx"])
+                # Fallback: tenta via clique (popup/redirect)
+                path = await self._baixar_por_clique(
+                    keywords=["imprimir boleto", "boleto"],
+                    filename=filename,
+                    excluir_keywords=["declaracao", "situacional"],
+                )
+                if path:
+                    downloaded.append(path)
+                    logger.info("_baixar_boletos_da_pagina — boleto %d salvo (clique): %s", seq, path)
+                    seq += 1
+                else:
+                    logger.warning("_baixar_boletos_da_pagina — falhou boleto idx=%d href=%s", item["idx"], item["href"])
 
-        logger.info("download_boletos_escrituracao — %d boleto(s) baixado(s)", len(downloaded))
+        logger.info("_baixar_boletos_da_pagina — %d boleto(s) baixado(s) para %02d/%d", len(downloaded), mes, ano)
         return downloaded
 
-    async def download_boletos_iss(self, mes: int, ano: int) -> list[str]:
-        """Prestador > Boletos via menu → filtra mes/ano → baixa boletos ISS."""
-        await self._ir_prestador("Boletos")
-        await self._screenshot("boletos_01_lista")
-
-        await self._aplicar_filtro_mes_ano(mes, ano)
-        await self._screenshot("boletos_02_filtrado")
-
-        # Coleta linhas de boletos ISS em aberto
-        boleto_rows = await self.page.evaluate("""
-            () => {
-                const rows = [];
-                document.querySelectorAll('table tbody tr').forEach(tr => {
-                    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
-                    const link = tr.querySelector('a[href*="/pdfs/"][href*="boleto"]');
-                    if (!link) return;
-                    rows.push({
-                        tributo:   cells[4] || '',
-                        situacao:  cells[10] || '',
-                        href: link.href,
-                    });
-                });
-                return rows;
-            }
-        """)
-
-        downloaded: list[str] = []
-        for i, row in enumerate(boleto_rows):
-            if "ISS" not in row.get("tributo", "").upper():
-                continue
-            situacao = row.get("situacao", "").upper()
-            if any(s in situacao for s in ("PAGO", "CANCELADA")):
-                continue
-            filename = f"boleto_iss_{mes:02d}_{ano}_{i+1}.pdf"
-            # Clica no link de impressão do boleto
-            path = await self._baixar_por_clique(
-                [row["href"].lower()[-30:], "imprimir boleto", "/pdfs/"],
-                filename,
-            )
-            if path:
-                downloaded.append(path)
-
-        if not downloaded:
-            logger.info("Nenhum boleto ISS disponível para %02d/%d", mes, ano)
-
-        return downloaded
+    # ------------------------------------------------------------------
+    # Relatório Situacional
+    # ------------------------------------------------------------------
 
     async def download_situacional(self) -> str | None:
-        """Clica em 'Situacional' no menu lateral e baixa o PDF."""
-        filename = f"situacional_{self.mes_atual:02d}_{self.ano_atual}.pdf"
+        """Baixa o Relatório Situacional direto via request HTTP.
 
-        # Tenta clicar no menu "Situacional" / "Relatório Situacional"
+        O link fica dentro da seção 'Relatórios' (accordion colapsado no menu),
+        por isso não é visível para _encontrar_href. A URL é sempre previsível:
+        /pdfs/situacional — baixamos diretamente sem precisar expandir o menu.
+
+        Fallback: expande a seção Relatórios e clica no link.
+        """
+        mes, ano = self.mes_atual, self.ano_atual
+        filename = f"situacional_ISS_{mes:02d}_{ano}.pdf"
+        url_direta = f"{self.base_url}/pdfs/situacional"
+
+        # ── 1ª tentativa: download direto pela URL conhecida ──────────
+        logger.info("download_situacional — baixando via URL direta: %s", url_direta)
+        path = await self._baixar_url_direta(url_direta, filename)
+        if path:
+            return path
+
+        # ── 2ª tentativa: expande seção Relatórios e clica no link ────
+        logger.info("download_situacional — expandindo seção Relatórios no menu")
+        await self._expandir_secao_menu(["relatórios", "relatorios", "relatório"])
+        await self.page.wait_for_timeout(DELAY_ANIMACAO)
+
         path = await self._baixar_por_clique(
-            ["situacional", "relatório situacional", "relatorio situacional"],
-            filename,
+            keywords=["relatório situacional", "relatorio situacional", "pdfs/situacional"],
+            filename=filename,
+            excluir_keywords=["boleto", "declaracao"],
         )
         if path:
             return path
 
-        # Fallback: procura link na página atual
-        await self._clicar_link(
-            ["situacional", "relatório situacional"],
-            "Situacional",
-        )
-        path = await self._baixar_por_clique(
-            ["situacional", "imprimir", "download"],
-            filename,
-        )
-        return path
+        logger.warning("download_situacional — não foi possível baixar o relatório situacional")
+        return None
 
     # ------------------------------------------------------------------
     # Área do Tomador — Nova Declaração (mesmo fluxo do Prestador)

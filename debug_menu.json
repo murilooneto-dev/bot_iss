@@ -1,0 +1,183 @@
+{
+  "menu": [
+    {
+      "text": "Novas Mensagens\n                                          Você não possui novas mensagens",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/mensagens"
+    },
+    {
+      "text": "Boletos\n                                             Não existem boletos pendentes",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo4/boletos?utf8=%E2%9C%93&q%5Bcredito_titorigem_eq%5D=ISS&q%5Bpclsit_eq%5D=A&commit=Filtrar"
+    },
+    {
+      "text": "Área do Prestador",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item1"
+    },
+    {
+      "text": "Notas Fiscais",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo1/notas?utf8=%E2%9C%93&q%5Bnfecompmes_eq%5D=6&q%5Bnfecompano_eq%5D=2026&commit=Filtrar"
+    },
+    {
+      "text": "Escriturações",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo1/escrituracoes?utf8=%E2%9C%93&q%5Bnotaano_eq%5D=2026&commit=Filtrar"
+    },
+    {
+      "text": "Notas Recusadas",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo1/recusadas"
+    },
+    {
+      "text": "Área do Tomador",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item3"
+    },
+    {
+      "text": "Escrituração",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module3/escrituracoes?utf8=%E2%9C%93&q%5Bnotaano_eq%5D=2026&commit=Filtrar"
+    },
+    {
+      "text": "Notas Recebidas",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module3/recebidas?utf8=%E2%9C%93&q%5Bnfecompano_eq%5D=2026&q%5Bnfeaceite_eq%5D=P&commit=Filtrar"
+    },
+    {
+      "text": "Notas Recebidas pelo ADN",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module3/recebidas_adn?utf8=%E2%9C%93&q%5Bnintcompano_eq%5D=2026&commit=Filtrar"
+    },
+    {
+      "text": "Notas Tomadas Declaradas",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module3/tomadas_declaradas"
+    },
+    {
+      "text": "Enviar Remessa",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module3/enviadas"
+    },
+    {
+      "text": "Mensagens",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item9"
+    },
+    {
+      "text": "Caixa Postal",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/mensagens"
+    },
+    {
+      "text": "Boletos",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item4"
+    },
+    {
+      "text": "Boletos Abertos",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo4/boletos?utf8=%E2%9C%93&q%5Bpclsit_eq%5D=A&commit=Filtrar"
+    },
+    {
+      "text": "Boletos Pagos",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo4/boletos?utf8=%E2%9C%93&q%5Bpclsit_eq%5D=F&commit=Filtrar"
+    },
+    {
+      "text": "Gerar Boleto por Nota",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo4/boletos_por_nota"
+    },
+    {
+      "text": "Resumo Anual",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo4/boletos_por_ano"
+    },
+    {
+      "text": "Obras",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item5"
+    },
+    {
+      "text": "Minhas Obras",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/obras/minhas"
+    },
+    {
+      "text": "Cadastro de Obras",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/obras"
+    },
+    {
+      "text": "Relatórios",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item6"
+    },
+    {
+      "text": "Relatório Situacional",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/pdfs/situacional"
+    },
+    {
+      "text": "Comprovante de Inscrição",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/pdfs/comprovante"
+    },
+    {
+      "text": "Livro de Registros",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module6/livro_de_registros"
+    },
+    {
+      "text": "Configurações",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item7"
+    },
+    {
+      "text": "Alterar Senha",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module5/senha"
+    },
+    {
+      "text": "Contador/Procurador",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module5/contador"
+    },
+    {
+      "text": "Logomarca",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module5/logomarca"
+    },
+    {
+      "text": "WebService",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#item8"
+    },
+    {
+      "text": "Versão 1.0",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#versao1"
+    },
+    {
+      "text": "Lista de Lotes",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/lotes"
+    },
+    {
+      "text": "Documentação",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/modulo2/documentacao"
+    },
+    {
+      "text": "Downloads",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/module5/downloads"
+    },
+    {
+      "text": "Sair",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/logout"
+    },
+    {
+      "text": "Juan Sims",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    },
+    {
+      "text": "Maureen Jenkins",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    },
+    {
+      "text": "Billie Dunn",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    },
+    {
+      "text": "Tomothy Roberts",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    },
+    {
+      "text": "Lawrence Robinson",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    },
+    {
+      "text": "Tyrone Owens",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    },
+    {
+      "text": "Load more..",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/#"
+    }
+  ],
+  "situacional": [
+    {
+      "text": "Relatório Situacional",
+      "href": "https://iss.speedgov.com.br/juazeirodonorte/pdfs/situacional",
+      "title": "Relatório Situacional"
+    }
+  ]
+}

@@ -161,14 +161,19 @@ async def process_empresa(empresa: dict) -> None:
         else:
             logger.warning("[%s] notanumdec não disponível — download da declaração ignorado", login_str)
 
-        # Boleto ISS — via ícone "Lista de Boletos da Competência" na linha da escrituração
-        # (navega para Escriturações, clica no ícone de boleto da linha do mês)
+        # Boleto ISS — 1ª tentativa: ícone "Lista de Boletos" na linha da escrituração
         await session._ir_prestador("Escriturações")
         boleto_paths = await session.download_boletos_escrituracao(mes=escrit["mes"], ano=escrit["ano"])
-        if not boleto_paths:
-            # Fallback: menu Boletos com filtro
-            logger.info("[%s] Fallback — tentando boletos via menu Boletos", login_str)
+        if boleto_paths:
+            logger.info("[%s] Boleto(s) baixado(s) via escrituração: %d arquivo(s)", login_str, len(boleto_paths))
+        else:
+            # 2ª tentativa: menu Prestador > Boletos com filtro de competência
+            logger.info("[%s] Tentando boletos via menu Prestador > Boletos", login_str)
             boleto_paths = await session.download_boletos_iss(mes=escrit["mes"], ano=escrit["ano"])
+            if boleto_paths:
+                logger.info("[%s] Boleto(s) baixado(s) via menu Boletos: %d arquivo(s)", login_str, len(boleto_paths))
+            else:
+                logger.warning("[%s] Boleto ISS não encontrado em nenhuma das tentativas para %02d/%d", login_str, escrit["mes"], escrit["ano"])
         files_downloaded.extend(boleto_paths)
 
         # Relatório Situacional
@@ -300,6 +305,9 @@ async def process_empresa(empresa: dict) -> None:
 async def main() -> None:
     logger.info("=== Bot ISS iniciado ===")
     ensure_tables()
+
+    # Aguarda 3s para garantir que o sistema fiscal terminou de gravar no banco
+    await asyncio.sleep(3)
 
     empresas = get_all_empresas()
 
